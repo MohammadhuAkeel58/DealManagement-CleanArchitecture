@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using DealClean.Domain.Service;
+using DealClean.Application.Common.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace DealClean.Application.Deals.Queries.GetDeals;
 
@@ -15,17 +16,17 @@ public class GetDealsQuery : IRequest<List<DealsVm>>
 
 public class GetDealsQueryHandler : IRequestHandler<GetDealsQuery, List<DealsVm>>
 {
-    private readonly IDealService _dealService;
+    private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public GetDealsQueryHandler(IDealService dealService, IMapper mapper)
+    public GetDealsQueryHandler(IApplicationDbContext Context, IMapper mapper)
     {
-        _dealService = dealService;
+        _context = Context;
         _mapper = mapper;
     }
     public async Task<List<DealsVm>> Handle(GetDealsQuery request, CancellationToken cancellationToken)
     {
-        var deals = await _dealService.GetAllDealsAsync();
+        var deals = await _context.Deals.ToListAsync();
         // return deals.Select(deal => new DealsVm
         // {
         //     Id = deal.Id,

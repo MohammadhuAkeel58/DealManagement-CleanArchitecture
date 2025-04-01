@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DealClean.Domain.Service;
+using DealClean.Application.Common.Interfaces;
 using MediatR;
 
 namespace DealClean.Application.Deals.Commands.DeleteDeal;
@@ -16,14 +16,18 @@ public class DeleteDealCommand : IRequest<int>
 
 public class DeleteDealCommandHandler : IRequestHandler<DeleteDealCommand, int>
 {
-    private readonly IDealService _dealService;
+    private readonly IApplicationDbContext _context;
 
-    public DeleteDealCommandHandler(IDealService dealService)
+    public DeleteDealCommandHandler(IApplicationDbContext context)
     {
-        _dealService = dealService;
+
+        _context = context;
     }
     public async Task<int> Handle(DeleteDealCommand request, CancellationToken cancellationToken)
     {
-        return await _dealService.DeleteDealAsync(request.Id);
+        var deal = await _context.Deals.FindAsync(request.Id);
+        _context.Deals.Remove(deal);
+        return await _context.SaveChangesAsync(cancellationToken);
+
     }
 }

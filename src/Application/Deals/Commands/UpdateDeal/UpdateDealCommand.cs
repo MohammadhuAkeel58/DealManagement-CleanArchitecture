@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DealClean.Application.Common.Interfaces;
 using DealClean.Application.Deals.DTO;
 using DealClean.Application.Deals.Queries.GetDeals;
-using DealClean.Domain.Service;
 using MediatR;
 
 namespace DealClean.Application.Deals.Commands.UpdateDeal;
@@ -16,15 +16,16 @@ public class UpdateDealCommand : IRequest<DealsVm>
 
 public class UpdateDealCommandHandler : IRequestHandler<UpdateDealCommand, DealsVm>
 {
-    private readonly IDealService _dealService;
+    private readonly IApplicationDbContext _context;
 
-    public UpdateDealCommandHandler(IDealService dealService)
+    public UpdateDealCommandHandler(IApplicationDbContext context)
     {
-        _dealService = dealService;
+
+        _context = context;
     }
     public async Task<DealsVm> Handle(UpdateDealCommand request, CancellationToken cancellationToken)
     {
-        var deal = await _dealService.UpdateDealAsync(request.deal.Id);
+        var deal = await _context.Deals.FindAsync(request.deal.Id);
         if (deal == null) return null;
 
         deal.Name = request.deal.Name;

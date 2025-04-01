@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DealClean.Application.Common.Interfaces;
 using DealClean.Application.Deals.DTO;
 using DealClean.Application.Deals.Queries.GetDeals;
 using DealClean.Domain.Entities;
-using DealClean.Domain.Service;
 using MediatR;
 
 namespace DealClean.Application.Deals.Commands.CreateDeal;
@@ -17,11 +17,11 @@ public class CreateDealCommand : IRequest<DealsVm>
 
 public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, DealsVm>
 {
-    private readonly IDealService _dealService;
+    private readonly IApplicationDbContext _context;
 
-    public CreateDealCommandHandler(IDealService dealService)
+    public CreateDealCommandHandler(IApplicationDbContext context)
     {
-        _dealService = dealService;
+        _context = context;
     }
     public async Task<DealsVm> Handle(CreateDealCommand request, CancellationToken cancellationToken)
     {
@@ -31,7 +31,9 @@ public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, Deals
             Slug = request.deal.Slug,
             Title = request.deal.Title,
         };
-        await _dealService.CreateDealAsync(deal);
+        _context.Deals.Add(deal);
+
+        await _context.SaveChangesAsync(cancellationToken);
 
         return new DealsVm
         {
