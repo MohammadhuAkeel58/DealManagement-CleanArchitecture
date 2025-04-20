@@ -10,7 +10,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
 
     public DbSet<Deal> Deals { get; set; }
-    public ApplicationDbContext(DbContextOptions options) : base(options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
 
