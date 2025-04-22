@@ -7,12 +7,18 @@ using DealClean.Application.Deals.DTO;
 using DealClean.Application.Deals.Queries.GetDeals;
 using DealClean.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace DealClean.Application.Deals.Commands.CreateDeal;
 
 public class CreateDealCommand : IRequest<DealsVm>
 {
-    public DealDto deal { get; set; }
+    public string Name { get; set; }        // Flattened properties
+    public string Slug { get; set; }
+    public string Title { get; set; }
+    public IFormFile ImageFile { get; set; }
+    public IFormFile VideoFile { get; set; }
+    public string VideoAltText { get; set; }
 }
 
 public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, DealsVm>
@@ -27,13 +33,13 @@ public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, Deals
     }
     public async Task<DealsVm> Handle(CreateDealCommand request, CancellationToken cancellationToken)
     {
-        var imageInfo = await _fileUploadService.UploadFileAsync(request.deal.ImageFile, "", null, false, cancellationToken);
-        VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.deal.VideoFile, "Videos", request.deal.VideoAltText, false, cancellationToken);
+        var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageFile, "Images", null, false, cancellationToken);
+        VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
         var deal = new Deal
         {
-            Name = request.deal.Name,
-            Slug = request.deal.Slug,
-            Title = request.deal.Title,
+            Name = request.Name,
+            Slug = request.Slug,
+            Title = request.Title,
             Image = imageInfo.Path,
             Video = videoInfo,
         };

@@ -26,7 +26,7 @@ public class FileUploadService : IFileUploadService
         folderPath = folderPath.TrimStart('/');
 
         var allowedVideoExtensions = new[] { ".mp4", ".avi", ".mov" };
-        var allowedImageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+        var allowedImageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
 
         var extension = Path.GetExtension(file.FileName).ToLower();
 
