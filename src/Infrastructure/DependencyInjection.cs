@@ -1,6 +1,7 @@
 
 using CleanArchitecture.Infrastructure.Persistence;
 using DealClean.Application.Common.Interfaces;
+using DealClean.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,7 @@ public static class DependencyInjection
 
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+        services.AddScoped<IFileUploadService, FileUploadService>();
 
 
         return services;
