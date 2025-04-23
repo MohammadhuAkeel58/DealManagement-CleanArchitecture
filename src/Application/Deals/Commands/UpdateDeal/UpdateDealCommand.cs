@@ -8,6 +8,7 @@ using DealClean.Application.Deals.Queries.GetDeals;
 using DealClean.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace DealClean.Application.Deals.Commands.UpdateDeal;
 
@@ -21,6 +22,8 @@ public class UpdateDealCommand : IRequest<DealsVm>
     public IFormFile? ImageFile { get; set; }
     public IFormFile? VideoFile { get; set; }
     public string? VideoAltText { get; set; }
+
+    public ICollection<Hotel>? Hotels { get; set; } = new List<Hotel>();
 }
 
 public class UpdateDealCommandHandler : IRequestHandler<UpdateDealCommand, DealsVm>
@@ -38,7 +41,7 @@ public class UpdateDealCommandHandler : IRequestHandler<UpdateDealCommand, Deals
     {
         try
         {
-            var deal = await _context.Deals.FindAsync(request.Id);
+            var deal = await _context.Deals.Include(d => d.Hotels).FirstOrDefaultAsync(d => d.Id == request.Id);
             if (deal == null) return null;
             var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageFile, "Images", null, false, cancellationToken);
             VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
@@ -48,6 +51,13 @@ public class UpdateDealCommandHandler : IRequestHandler<UpdateDealCommand, Deals
             deal.Title = request.Title;
             deal.Image = imageInfo.Path;
             deal.Video = videoInfo;
+
+            deal.Hotels = request.Hotels?.Select(h => new Hotel
+            {
+                Name = h.Name,
+                Location = h.Location,
+                Description = h.Description,
+            }).ToList();
 
             await _context.SaveChangesAsync(cancellationToken);
 
@@ -60,6 +70,12 @@ public class UpdateDealCommandHandler : IRequestHandler<UpdateDealCommand, Deals
                 Image = deal.Image,
                 Video = deal.Video?.Path,
                 VideoAltText = deal.Video?.AltText,
+                Hotels = deal.Hotels.Select(x => new HotelVm
+                {
+                    Name = x.Name,
+                    Location = x.Location,
+                    Description = x.Description
+                }).ToList()
 
             };
         }

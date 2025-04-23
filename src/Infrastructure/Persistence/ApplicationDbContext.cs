@@ -30,6 +30,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         entity.Property(e => e.Video)
               .HasColumnType("jsonb")
               .IsRequired(false);
+
+
     });
 
 

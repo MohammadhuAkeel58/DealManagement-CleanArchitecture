@@ -3,6 +3,7 @@ using DealClean.Application;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Http.Features;
+using DealClean.Application.Common.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.Configure<FormOptions>(options =>
 // Add Clean Architecture services
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructure(builder.Configuration);
+
 
 // Add controllers and Swagger
 builder.Services.AddControllers();

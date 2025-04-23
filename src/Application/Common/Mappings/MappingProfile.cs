@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
+using DealClean.Application.Deals.Queries.GetDeals;
+using DealClean.Domain.Entities;
 
 namespace DealClean.Application.Common.Mappings;
 
@@ -12,6 +14,11 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         ApplyMappingsFromAssembly(Assembly.GetExecutingAssembly());
+
+        CreateMap<Deal, DealsVm>()
+        .ForMember(dest => dest.Video, opt => opt.MapFrom(src => src.Video != null ? src.Video.Path : null))
+            .ForMember(dest => dest.VideoAltText, opt => opt.MapFrom(src => src.Video != null ? src.Video.AltText : null));
+        CreateMap<Hotel, HotelVm>();
     }
 
     private void ApplyMappingsFromAssembly(Assembly assembly)

@@ -6,6 +6,7 @@ using AutoMapper;
 using DealClean.Application.Common.Interfaces;
 using DealClean.Application.Deals.Queries.GetDeals;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace DealClean.Application.Deals.Queries.GetDealById;
 
@@ -28,9 +29,18 @@ public class GetDealByIdQueryHandler : IRequestHandler<GetDealByIdQuery, DealsVm
     }
     public async Task<DealsVm> Handle(GetDealByIdQuery request, CancellationToken cancellationToken)
     {
+        try
+        {
+            var deal = await _context.Deals.Include(d => d.Hotels).FirstOrDefaultAsync(d => d.Id == request.Id);
+            if (deal == null) return null;
+            return _mapper.Map<DealsVm>(deal);
+        }
+        catch (Exception ex)
+        {
 
-        var deal = await _context.Deals.FindAsync(request.Id);
-        return _mapper.Map<DealsVm>(deal);
+            throw new Exception("Error getting deal by id", ex);
+        }
+
 
     }
 }

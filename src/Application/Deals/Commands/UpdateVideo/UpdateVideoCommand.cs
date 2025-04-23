@@ -33,9 +33,10 @@ public class UpdateVideoCommandHandler : IRequestHandler<UpdateVideoCommand, Dea
     {
         try
         {
-            VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
+
             var deal = _context.Deals.Find(request.Id);
             if (deal == null) return null;
+            VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
 
             deal.Video = videoInfo;
 

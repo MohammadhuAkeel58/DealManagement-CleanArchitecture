@@ -11,5 +11,6 @@ public interface IApplicationDbContext
 
 {
     DbSet<Deal> Deals { get; set; }
+    DbSet<Hotel> Hotels { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

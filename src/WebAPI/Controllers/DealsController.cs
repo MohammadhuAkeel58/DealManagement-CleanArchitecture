@@ -136,4 +136,20 @@ public class DealsController : ApiControllerBase
             return StatusCode(500, new { error = "Something went wrong updating video" });
         }
     }
+
+
+    [HttpPost("/api/hotel")]
+    public async Task<IActionResult> CreateHotel([FromBody] CreateHotelCommand command)
+    {
+        try
+        {
+            var hotel = await Mediator.Send(command);
+            return Ok(hotel);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error creating hotel: " + ex.Message);
+            return StatusCode(500, new { error = "Something went wrong creating hotel" });
+        }
+    }
 }

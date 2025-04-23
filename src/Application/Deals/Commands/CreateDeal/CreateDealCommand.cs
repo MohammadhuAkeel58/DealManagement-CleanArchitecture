@@ -16,7 +16,7 @@ public class CreateDealCommand : IRequest<DealsVm>
     public string Name { get; set; }
     public string Slug { get; set; }
     public string Title { get; set; }
-    public string? Image { get; set; } // for to store the path
+    public string? Image { get; set; }
     public IFormFile? ImageFile { get; set; }
     public IFormFile? VideoFile { get; set; }
     public string? VideoAltText { get; set; }

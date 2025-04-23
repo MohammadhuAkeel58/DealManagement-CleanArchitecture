@@ -26,19 +26,18 @@ public class GetDealsQueryHandler : IRequestHandler<GetDealsQuery, List<DealsVm>
     }
     public async Task<List<DealsVm>> Handle(GetDealsQuery request, CancellationToken cancellationToken)
     {
-        var deals = await _context.Deals.ToListAsync();
-        // return deals.Select(deal => new DealsVm
-        // {
-        //     Id = deal.Id,
-        //     Name = deal.Name,
-        //     Slug = deal.Slug,
-        //     Title = deal.Title,
-        //     Image = deal.Image,
-        //     Video = deal.Video?.Path,
-        //     VideoAltText = deal.Video?.AltText,
-        // }).ToList();
 
-        return _mapper.Map<List<DealsVm>>(deals);
+        try
+        {
+            var deals = await _context.Deals.Include(x => x.Hotels).ToListAsync();
+            return _mapper.Map<List<DealsVm>>(deals);
+        }
+        catch (Exception ex)
+        {
+
+            throw new Exception("Error getting deals", ex);
+        }
+
 
     }
 }
