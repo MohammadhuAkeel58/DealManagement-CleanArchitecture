@@ -7,12 +7,15 @@ using DealClean.Application.Deals.DTO;
 using DealClean.Application.Deals.Queries.GetDeals;
 using DealClean.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace DealClean.Application.Deals.Commands.UpdateVideo;
 
 public class UpdateVideoCommand : IRequest<DealsVm>
 {
-    public VideoDto VideoDt { get; set; }
+    public int Id { get; set; }
+    public IFormFile? VideoFile { get; set; }
+    public string? VideoAltText { get; set; }
 }
 
 public class UpdateVideoCommandHandler : IRequestHandler<UpdateVideoCommand, DealsVm>
@@ -29,11 +32,13 @@ public class UpdateVideoCommandHandler : IRequestHandler<UpdateVideoCommand, Dea
     public async Task<DealsVm> Handle(UpdateVideoCommand request, CancellationToken cancellationToken)
     {
 
-        VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoDt.VideoFile, "Videos", request.VideoDt.AltText, false, cancellationToken);
-        var deal = _context.Deals.Find(request.VideoDt.Id);
+        VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
+        var deal = _context.Deals.Find(request.Id);
         if (deal == null) return null;
 
         deal.Video = videoInfo;
+
+        await _context.SaveChangesAsync(cancellationToken);
 
         return new DealsVm
         {

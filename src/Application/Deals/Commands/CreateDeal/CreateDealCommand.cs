@@ -16,9 +16,10 @@ public class CreateDealCommand : IRequest<DealsVm>
     public string Name { get; set; }        // Flattened properties
     public string Slug { get; set; }
     public string Title { get; set; }
-    public IFormFile ImageFile { get; set; }
-    public IFormFile VideoFile { get; set; }
-    public string VideoAltText { get; set; }
+    public string? Image { get; set; } // for to store the path
+    public IFormFile? ImageFile { get; set; }
+    public IFormFile? VideoFile { get; set; }
+    public string? VideoAltText { get; set; }
 }
 
 public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, DealsVm>
@@ -40,7 +41,7 @@ public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, Deals
             Name = request.Name,
             Slug = request.Slug,
             Title = request.Title,
-            Image = imageInfo.Path,
+            Image = imageInfo?.Path,
             Video = videoInfo,
         };
 
@@ -55,6 +56,7 @@ public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, Deals
             Name = deal.Name,
             Slug = deal.Slug,
             Title = deal.Title,
+            Image = deal.Image,
             Video = deal.Video?.Path,
             VideoAltText = deal.Video?.AltText,
         };

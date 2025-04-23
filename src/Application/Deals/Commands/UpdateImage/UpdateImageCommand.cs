@@ -6,12 +6,15 @@ using DealClean.Application.Common.Interfaces;
 using DealClean.Application.Deals.DTO;
 using DealClean.Application.Deals.Queries.GetDeals;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace DealClean.Application.Deals.Commands.UpdateImage;
 
 public class UpdateImageCommand : IRequest<DealsVm>
 {
-    public ImageDto ImageDt { get; set; }
+    public int Id { get; set; }
+    public string? Image { get; set; } // for to store the path
+    public IFormFile? ImageFile { get; set; } // for file upload
 }
 
 public class UpdateImageCommandHandler : IRequestHandler<UpdateImageCommand, DealsVm>
@@ -27,11 +30,14 @@ public class UpdateImageCommandHandler : IRequestHandler<UpdateImageCommand, Dea
 
     public async Task<DealsVm> Handle(UpdateImageCommand request, CancellationToken cancellationToken)
     {
-        var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageDt.ImageFile, "Images", null, false, cancellationToken);
-        var deal = await _context.Deals.FindAsync(request.ImageDt.Id);
+
+        var deal = await _context.Deals.FindAsync(request.Id);
         if (deal == null) return null;
+        var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageFile, "Images", null, false, cancellationToken);
 
         deal.Image = imageInfo.Path;
+
+        await _context.SaveChangesAsync(cancellationToken);
 
         return new DealsVm
         {

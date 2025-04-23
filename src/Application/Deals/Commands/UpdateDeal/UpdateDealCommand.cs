@@ -7,12 +7,20 @@ using DealClean.Application.Deals.DTO;
 using DealClean.Application.Deals.Queries.GetDeals;
 using DealClean.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace DealClean.Application.Deals.Commands.UpdateDeal;
 
 public class UpdateDealCommand : IRequest<DealsVm>
 {
-    public DealDto deal { get; set; }
+    public int Id { get; set; } // Added Id property to identify the deal to update
+    public string Name { get; set; }        // Flattened properties
+    public string Slug { get; set; }
+    public string Title { get; set; }
+    public string? Image { get; set; } // for to store the path
+    public IFormFile? ImageFile { get; set; }
+    public IFormFile? VideoFile { get; set; }
+    public string? VideoAltText { get; set; }
 }
 
 public class UpdateDealCommandHandler : IRequestHandler<UpdateDealCommand, DealsVm>
@@ -28,16 +36,19 @@ public class UpdateDealCommandHandler : IRequestHandler<UpdateDealCommand, Deals
     }
     public async Task<DealsVm> Handle(UpdateDealCommand request, CancellationToken cancellationToken)
     {
-        var imageInfo = await _fileUploadService.UploadFileAsync(request.deal.ImageFile, "", null, false, cancellationToken);
-        VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.deal.VideoFile, "Videos", request.deal.VideoAltText, false, cancellationToken);
-        var deal = await _context.Deals.FindAsync(request.deal.Id);
-        if (deal == null) return null;
 
-        deal.Name = request.deal.Name;
-        deal.Slug = request.deal.Slug;
-        deal.Title = request.deal.Title;
+        var deal = await _context.Deals.FindAsync(request.Id);
+        if (deal == null) return null;
+        var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageFile, "Images", null, false, cancellationToken);
+        VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
+
+        deal.Name = request.Name;
+        deal.Slug = request.Slug;
+        deal.Title = request.Title;
         deal.Image = imageInfo.Path;
         deal.Video = videoInfo;
+
+        await _context.SaveChangesAsync(cancellationToken);
 
         return new DealsVm
         {

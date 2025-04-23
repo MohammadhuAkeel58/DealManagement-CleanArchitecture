@@ -65,13 +65,17 @@ public class DealsController : ApiControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> updateDeal([FromRoute] int id, [FromBody] UpdateDealCommand command)
+    public async Task<IActionResult> updateDeal([FromRoute] int id, [FromForm] UpdateDealCommand command)
     {
         try
         {
-            if (id != command.deal.Id)
-                await Mediator.Send(command);
-            return NotFound();
+            command.Id = id;
+            var deal = await Mediator.Send(command);
+
+            if (deal == null)
+                return NotFound();
+
+            return Ok(deal);
         }
 
         catch (Exception ex)
@@ -82,12 +86,15 @@ public class DealsController : ApiControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> deleteDeal([FromRoute] int id, DeleteDealCommand command)
+    public async Task<IActionResult> deleteDeal([FromRoute] int id)
     {
         try
         {
-            await Mediator.Send(new DeleteDealCommand { Id = id });
-            return NotFound();
+            var deal = await Mediator.Send(new DeleteDealCommand { Id = id });
+            if (deal == 0)
+                return NotFound();
+
+            return NoContent();
         }
         catch (Exception ex)
         {
@@ -101,7 +108,7 @@ public class DealsController : ApiControllerBase
     {
         try
         {
-            command.ImageDt.Id = id;
+            command.Id = id;
             var updateImage = await Mediator.Send(command);
             return Ok(updateImage);
         }
@@ -118,7 +125,7 @@ public class DealsController : ApiControllerBase
     {
         try
         {
-            command.VideoDt.Id = id;
+            command.Id = id;
             var updateVideo = await Mediator.Send(command);
             return Ok(updateVideo);
         }
