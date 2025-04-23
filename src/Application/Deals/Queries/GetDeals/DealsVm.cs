@@ -16,4 +16,5 @@ public class DealsVm : IMapFrom<Deal>
     public string? Image { get; set; }
     public string? Video { get; set; }    // From VideoInfo.Path
     public string? VideoAltText { get; set; }
+    public List<HotelVm>? Hotels { get; set; } = new List<HotelVm>();
 }

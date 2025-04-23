@@ -17,4 +17,5 @@ public class DealDto
     public IFormFile? VideoFile { get; set; }
 
     public string? VideoAltText { get; set; }
+    public ICollection<HotelDto>? Hotels { get; set; } = new List<HotelDto>();
 }

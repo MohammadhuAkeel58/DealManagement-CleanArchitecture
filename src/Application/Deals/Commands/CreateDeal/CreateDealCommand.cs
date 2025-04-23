@@ -13,13 +13,14 @@ namespace DealClean.Application.Deals.Commands.CreateDeal;
 
 public class CreateDealCommand : IRequest<DealsVm>
 {
-    public string Name { get; set; }        // Flattened properties
+    public string Name { get; set; }
     public string Slug { get; set; }
     public string Title { get; set; }
     public string? Image { get; set; } // for to store the path
     public IFormFile? ImageFile { get; set; }
     public IFormFile? VideoFile { get; set; }
     public string? VideoAltText { get; set; }
+    public ICollection<Hotel>? Hotels { get; set; } = new List<Hotel>();
 }
 
 public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, DealsVm>
@@ -45,6 +46,13 @@ public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, Deals
                 Title = request.Title,
                 Image = imageInfo?.Path,
                 Video = videoInfo,
+                Hotels = request.Hotels?.Select(h => new Hotel
+                {
+                    Name = h.Name,
+                    Location = h.Location,
+                    Description = h.Description,
+
+                }).ToList()
             };
 
 
@@ -61,6 +69,13 @@ public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, Deals
                 Image = deal.Image,
                 Video = deal.Video?.Path,
                 VideoAltText = deal.Video?.AltText,
+                Hotels = deal.Hotels.Select(x => new HotelVm
+                {
+                    Name = x.Name,
+                    Location = x.Location,
+                    Description = x.Description
+                }).ToList()
+
             };
 
         }
