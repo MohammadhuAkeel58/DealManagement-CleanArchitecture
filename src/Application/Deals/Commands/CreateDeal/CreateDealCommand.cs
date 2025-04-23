@@ -34,32 +34,41 @@ public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, Deals
     }
     public async Task<DealsVm> Handle(CreateDealCommand request, CancellationToken cancellationToken)
     {
-        var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageFile, "Images", null, false, cancellationToken);
-        VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
-        var deal = new Deal
+        try
         {
-            Name = request.Name,
-            Slug = request.Slug,
-            Title = request.Title,
-            Image = imageInfo?.Path,
-            Video = videoInfo,
-        };
+            var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageFile, "Images", null, false, cancellationToken);
+            VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
+            var deal = new Deal
+            {
+                Name = request.Name,
+                Slug = request.Slug,
+                Title = request.Title,
+                Image = imageInfo?.Path,
+                Video = videoInfo,
+            };
 
 
-        _context.Deals.Add(deal);
+            _context.Deals.Add(deal);
 
-        await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
 
-        return new DealsVm
+            return new DealsVm
+            {
+                Id = deal.Id,
+                Name = deal.Name,
+                Slug = deal.Slug,
+                Title = deal.Title,
+                Image = deal.Image,
+                Video = deal.Video?.Path,
+                VideoAltText = deal.Video?.AltText,
+            };
+
+        }
+        catch (Exception ex)
         {
-            Id = deal.Id,
-            Name = deal.Name,
-            Slug = deal.Slug,
-            Title = deal.Title,
-            Image = deal.Image,
-            Video = deal.Video?.Path,
-            VideoAltText = deal.Video?.AltText,
-        };
+
+            throw new Exception("An error occurred while creating the deal.", ex);
+        }
 
 
     }

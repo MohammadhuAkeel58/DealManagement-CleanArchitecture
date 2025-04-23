@@ -15,5 +15,7 @@ public class Deal
 
     public VideoInfo? Video { get; set; }
 
+    public ICollection<Hotel>? Hotels { get; set; } = new List<Hotel>();
+
 
 }

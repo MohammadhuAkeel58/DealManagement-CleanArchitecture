@@ -31,25 +31,33 @@ public class UpdateVideoCommandHandler : IRequestHandler<UpdateVideoCommand, Dea
 
     public async Task<DealsVm> Handle(UpdateVideoCommand request, CancellationToken cancellationToken)
     {
-
-        VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
-        var deal = _context.Deals.Find(request.Id);
-        if (deal == null) return null;
-
-        deal.Video = videoInfo;
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return new DealsVm
+        try
         {
-            Id = deal.Id,
-            Name = deal.Name,
-            Slug = deal.Slug,
-            Title = deal.Title,
-            Video = deal.Video?.Path,
-            VideoAltText = deal.Video?.AltText,
+            VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
+            var deal = _context.Deals.Find(request.Id);
+            if (deal == null) return null;
 
-        };
+            deal.Video = videoInfo;
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return new DealsVm
+            {
+                Id = deal.Id,
+                Name = deal.Name,
+                Slug = deal.Slug,
+                Title = deal.Title,
+                Video = deal.Video?.Path,
+                VideoAltText = deal.Video?.AltText,
+
+            };
+        }
+        catch (Exception ex)
+        {
+
+            throw new Exception("Error updating video", ex);
+        }
+
 
     }
 }

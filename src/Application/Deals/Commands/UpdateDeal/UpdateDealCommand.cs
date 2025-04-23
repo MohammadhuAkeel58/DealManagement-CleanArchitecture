@@ -36,31 +36,39 @@ public class UpdateDealCommandHandler : IRequestHandler<UpdateDealCommand, Deals
     }
     public async Task<DealsVm> Handle(UpdateDealCommand request, CancellationToken cancellationToken)
     {
-
-        var deal = await _context.Deals.FindAsync(request.Id);
-        if (deal == null) return null;
-        var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageFile, "Images", null, false, cancellationToken);
-        VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
-
-        deal.Name = request.Name;
-        deal.Slug = request.Slug;
-        deal.Title = request.Title;
-        deal.Image = imageInfo.Path;
-        deal.Video = videoInfo;
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return new DealsVm
+        try
         {
-            Id = deal.Id,
-            Name = deal.Name,
-            Slug = deal.Slug,
-            Title = deal.Title,
-            Image = deal.Image,
-            Video = deal.Video?.Path,
-            VideoAltText = deal.Video?.AltText,
+            var deal = await _context.Deals.FindAsync(request.Id);
+            if (deal == null) return null;
+            var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageFile, "Images", null, false, cancellationToken);
+            VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
 
-        };
+            deal.Name = request.Name;
+            deal.Slug = request.Slug;
+            deal.Title = request.Title;
+            deal.Image = imageInfo.Path;
+            deal.Video = videoInfo;
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return new DealsVm
+            {
+                Id = deal.Id,
+                Name = deal.Name,
+                Slug = deal.Slug,
+                Title = deal.Title,
+                Image = deal.Image,
+                Video = deal.Video?.Path,
+                VideoAltText = deal.Video?.AltText,
+
+            };
+        }
+        catch (Exception ex)
+        {
+
+            throw new Exception("Error updating deal", ex);
+        }
+
 
 
     }

@@ -31,26 +31,32 @@ public class UpdateImageCommandHandler : IRequestHandler<UpdateImageCommand, Dea
     public async Task<DealsVm> Handle(UpdateImageCommand request, CancellationToken cancellationToken)
     {
 
-        var deal = await _context.Deals.FindAsync(request.Id);
-        if (deal == null) return null;
-        var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageFile, "Images", null, false, cancellationToken);
-
-        deal.Image = imageInfo.Path;
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return new DealsVm
+        try
         {
-            Id = deal.Id,
-            Name = deal.Name,
-            Slug = deal.Slug,
-            Title = deal.Title,
-            Image = deal.Image,
+            var deal = await _context.Deals.FindAsync(request.Id);
+            if (deal == null) return null;
+            var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageFile, "Images", null, false, cancellationToken);
+
+            deal.Image = imageInfo.Path;
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return new DealsVm
+            {
+                Id = deal.Id,
+                Name = deal.Name,
+                Slug = deal.Slug,
+                Title = deal.Title,
+                Image = deal.Image,
 
 
-        };
+            };
+        }
+        catch (Exception ex)
+        {
 
-
+            throw new Exception("Error updating image", ex);
+        }
 
 
     }

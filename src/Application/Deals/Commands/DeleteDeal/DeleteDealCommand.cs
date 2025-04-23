@@ -25,10 +25,19 @@ public class DeleteDealCommandHandler : IRequestHandler<DeleteDealCommand, int>
     }
     public async Task<int> Handle(DeleteDealCommand request, CancellationToken cancellationToken)
     {
-        var deal = await _context.Deals.FindAsync(request.Id);
-        if (deal == null) return 0;
-        _context.Deals.Remove(deal);
-        return await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            var deal = await _context.Deals.FindAsync(request.Id);
+            if (deal == null) return 0;
+            _context.Deals.Remove(deal);
+            return await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error deleting deal", ex);
+        }
+
+
 
     }
 }

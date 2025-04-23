@@ -10,6 +10,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
 
     public DbSet<Deal> Deals { get; set; }
+    public DbSet<Hotel> Hotels { get; set; }
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
