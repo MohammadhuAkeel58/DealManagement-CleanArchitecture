@@ -13,4 +13,6 @@ public class Hotel
     public string? Description { get; set; }
     public int DealId { get; set; }
     public Deal? Deal { get; set; }
+    public List<HotelMediaInfo> Media { get; set; } = new List<HotelMediaInfo>();
+
 }

@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json;
 using DealClean.Application.Common.Interfaces;
 using DealClean.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -26,14 +27,20 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         builder.Entity<Deal>(entity =>
     {
         entity.HasKey(e => e.Id);
-
         entity.Property(e => e.Video)
               .HasColumnType("jsonb")
               .IsRequired(false);
-
-
     });
 
+        builder.Entity<Hotel>(entity =>
+            {
+                entity.HasKey(e => e.HotelId);
+
+                // Configure Media as JSONB column
+                entity.Property(e => e.Media)
+                      .HasColumnType("jsonb")
+                      .IsRequired(false);
+            });
 
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         base.OnModelCreating(builder);

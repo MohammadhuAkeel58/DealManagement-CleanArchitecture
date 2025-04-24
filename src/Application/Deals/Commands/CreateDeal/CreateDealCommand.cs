@@ -20,18 +20,20 @@ public class CreateDealCommand : IRequest<DealsVm>
     public IFormFile? ImageFile { get; set; }
     public IFormFile? VideoFile { get; set; }
     public string? VideoAltText { get; set; }
-    public ICollection<Hotel>? Hotels { get; set; } = new List<Hotel>();
+    public ICollection<HotelDto>? Hotels { get; set; } = new List<HotelDto>();
 }
 
 public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, DealsVm>
 {
     private readonly IApplicationDbContext _context;
     private readonly IFileUploadService _fileUploadService;
+    private readonly IHotelFileUploadService _hotelFileUploadService;
 
-    public CreateDealCommandHandler(IApplicationDbContext context, IFileUploadService fileUploadService)
+    public CreateDealCommandHandler(IApplicationDbContext context, IFileUploadService fileUploadService, IHotelFileUploadService hotelFileUploadService)
     {
         _context = context;
         _fileUploadService = fileUploadService;
+        _hotelFileUploadService = hotelFileUploadService;
     }
     public async Task<DealsVm> Handle(CreateDealCommand request, CancellationToken cancellationToken)
     {
@@ -39,6 +41,33 @@ public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, Deals
         {
             var imageInfo = await _fileUploadService.UploadFileAsync(request.ImageFile, "Images", null, false, cancellationToken);
             VideoInfo? videoInfo = await _fileUploadService.UploadFileAsync(request.VideoFile, "Videos", request.VideoAltText, true, cancellationToken);
+
+            var hotels = new List<Hotel>();
+
+            if (request.Hotels != null && request.Hotels.Any())
+            {
+                foreach (var hotelDto in request.Hotels)
+                {
+
+                    var hotelMedia = await _hotelFileUploadService.UploadHotelMediaAsync(
+                        hotelDto.ImageFiles,
+                        hotelDto.ImageAltTexts,
+                        hotelDto.VideoFiles,
+                        hotelDto.VideoAltTexts,
+                        cancellationToken);
+
+                    var hotel = new Hotel
+                    {
+                        Name = hotelDto.Name,
+                        Location = hotelDto.Location,
+                        Description = hotelDto.Description,
+                        Media = hotelMedia
+                    };
+
+                    hotels.Add(hotel);
+                }
+            }
+
             var deal = new Deal
             {
                 Name = request.Name,
@@ -46,18 +75,10 @@ public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, Deals
                 Title = request.Title,
                 Image = imageInfo?.Path,
                 Video = videoInfo,
-                Hotels = request.Hotels?.Select(h => new Hotel
-                {
-                    Name = h.Name,
-                    Location = h.Location,
-                    Description = h.Description,
-
-                }).ToList()
+                Hotels = hotels
             };
 
-
             _context.Deals.Add(deal);
-
             await _context.SaveChangesAsync(cancellationToken);
 
             return new DealsVm
@@ -71,13 +92,18 @@ public class CreateDealCommandHandler : IRequestHandler<CreateDealCommand, Deals
                 VideoAltText = deal.Video?.AltText,
                 Hotels = deal.Hotels.Select(x => new HotelVm
                 {
+                    HotelId = x.HotelId,
                     Name = x.Name,
                     Location = x.Location,
-                    Description = x.Description
+                    Description = x.Description,
+                    Media = x.Media.Select(m => new HotelMediaVm
+                    {
+                        Path = m.Path,
+                        AltText = m.AltText,
+                        IsVideo = m.IsVideo
+                    }).ToList()
                 }).ToList()
-
             };
-
         }
         catch (Exception ex)
         {

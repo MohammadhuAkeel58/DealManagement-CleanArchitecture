@@ -20,6 +20,7 @@ public static class DependencyInjection
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IFileUploadService, FileUploadService>();
+        services.AddScoped<IHotelFileUploadService, HotelFileUploadService>();
 
 
         return services;

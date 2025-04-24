@@ -11,4 +11,5 @@ public class HotelVm
     public string Name { get; set; }
     public string Location { get; set; }
     public string Description { get; set; }
+    public List<HotelMediaVm> Media { get; set; } = new List<HotelMediaVm>();
 }
